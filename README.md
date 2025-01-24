@@ -153,7 +153,7 @@ GET card_data/_search
 
 <br>
 
-### 3. 연령대별 회원등급
+### 3. 연령대별 회원등급 수
 ```
 GET card_data/_search
 {
@@ -178,6 +178,11 @@ GET card_data/_search
 ```
 ![3-2](https://github.com/user-attachments/assets/b6d6e6bf-f1a3-4e09-bb62-f648074b5986)
 
+21: VVIP<br>
+22: VIP<br>
+23: 플래티넘<br>
+24: 골드<br>
+25: 해당없음<br>
 
 <br>
 
