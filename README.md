@@ -1,4 +1,6 @@
 # 🔨 ELK 설치
+> 대용량 실데이터를 시각화하기 위한 ELK 설치
+<br>
 
 ## ElasticSearch
 
@@ -47,8 +49,14 @@ logstash 패키지의 사용 가능한 버전과 해당 버전의 저장소 정�
 <br>
 
 # 🔍 Visualization
+> OO카드 실데이터를 이용한 시각화 및 분석
+<br>
 
 ### 1. 나이별 평균 이용금액
+
+<details>
+<summary>QueryDSL 보기</summary> 
+
 ```
 GET card_data/_search
 {
@@ -70,11 +78,20 @@ GET card_data/_search
   }
 }
 ```
-![1-2](https://github.com/user-attachments/assets/85c58ab7-f6a1-4ae0-9e59-8a9b9ea35931)
+</details>
 
 <br>
 
+![1-2](https://github.com/user-attachments/assets/85c58ab7-f6a1-4ae0-9e59-8a9b9ea35931)
+
+<br><br>
+
+
 ### 2. 연령대별 평균 소비 분야
+
+<details>
+<summary>QueryDSL 보기</summary>
+
 ```
 GET card_data/_search
 {
@@ -141,6 +158,10 @@ GET card_data/_search
   }
 }
 ```
+</details>
+
+<br>
+
 ![2-2](https://github.com/user-attachments/assets/793f11ff-b8ee-449e-8911-5241b57020e8)
 
 보험/병원은 연령대가 높아질수록 늘어난다.<br>
@@ -150,10 +171,13 @@ GET card_data/_search
 자동차/연료/정비는 55를 중간값이자 최대값으로 갖는다.<br>
 
 
-
-<br>
+<br><br>
 
 ### 3. 연령대별 회원등급 수
+
+<details>
+<summary>QueryDSL 보기</summary>
+
 ```
 GET card_data/_search
 {
@@ -176,6 +200,10 @@ GET card_data/_search
   }
 }
 ```
+</details>
+
+<br>
+
 ![3-2](https://github.com/user-attachments/assets/b6d6e6bf-f1a3-4e09-bb62-f648074b5986)
 
 21: VVIP<br>
@@ -184,9 +212,14 @@ GET card_data/_search
 24: 골드<br>
 25: 해당없음<br>
 
-<br>
+<br><br>
+
 
 ### 4. 라이프 스테이지별 평균 이용금액
+
+<details>
+<summary>QueryDSL 보기</summary>
+
 ```
 GET card_data/_search
 {
@@ -208,6 +241,11 @@ GET card_data/_search
   }
 }
 ```
+
+</details>
+
+<br>
+
 ![4-2](https://github.com/user-attachments/assets/b6976851-dff7-4304-b687-b4080d3920f8)
 
 UNI : 대학생<br>
@@ -220,6 +258,31 @@ GOLLIFE : 중년기타 (신혼부부 이후 or 자녀 없음)<br>
 SECLIFE : 2nd Life<br>
 RETIR : 은퇴<br>
 
+
+<br><br>
+
+### 5. 라이프 스테이지별 평균 소비 분야
+
+<details>
+<summary>QueryDSL 보기</summary>
+
+```
+
+```
+
+</details>
+
+<br>
+
+
+
+## 회고
+
+
+## 아쉬웠던 점
+날짜에 따른 카드 신규 가입자의 증감 추이를 살펴보고 증감 폭이 큰 날짜 전후로 어떤 이벤트 또는 사건이 있었는지 확인해보고 신규 가입자를 늘릴 방법을 찾아보려고 했다.
+하지만 고객의 카드 입회년월 데이터가 명세서에는 YYYYMM으로 나와있었던 반면 실제 데이터 형식은 ~~~ 로 되어 있었다.
+해당 데이터가 무엇을 나타내는지 알아보기 어려워 해당 분석 방법은 실행하지 못한 것이 아쉽다.
 
 <br><br>
 
