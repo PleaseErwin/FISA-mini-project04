@@ -1,25 +1,37 @@
 # 🔨 ELK 설치
-> 대용량 실데이터를 시각화하기 위한 ELK 설치
+> 대규모 실데이터를 시각화하기 위한 ELK 설치
 <br>
 
 ## ElasticSearch
 
-```
+<br>
+설치 전 윈도우에서 우분투 ELK에 직접 접속할 수 있도록 VirtualBox에서 포트포워딩 설정을 해 준다.<br><br>
 
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list deb https://artifacts.elastic.co/packages/7.x/apt stable main
+(사진)
+포트 9200 - ElasticSearch <br>
+(사진)
+포트 5601 - Kibana <br>
+
 ```
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo tee /usr/share/keyrings/elasticsearch-keyring.asc
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update
+```
+gpg key 등록 → 레포지토리 url값 인식(저장소 등록) → update 후 elasticsearch install
+
+<br>
 
 ```
 sudo apt install -y elasticsearch=7.11.1
 ```
 
-윈도우에서 VirtualBox 우분투의 포트포워딩 설정을 해 준다.
-irtual Box의 포트 포워딩 설정에 Windows(Host IP)에서 Ubuntu MySQL 포트포워딩
+<br>
+
 ```
 sudo vi /etc/elasticsearch/elasticsearch.yml
 ```
-이 상태로는 VirtualBox에서 포트포워딩을 하더라도 외부에서 연결이 불가능하다.
-yml 내부에서 ~~~~~을 수정해서 로컬이 아닌 외부에서도 ES를 사용 가능하도록 만든다.
+이 상태로는 VirtualBox에서 포트포워딩을 하더라도 외부에서 연결이 불가능하다.<br>
+elasticsearch.yml 파일을 수정해서 로컬이 아닌 외부에서도 ES를 사용 가능하도록 만든다.
 
 
 <br>
@@ -30,23 +42,54 @@ yml 내부에서 ~~~~~을 수정해서 로컬이 아닌 외부에서도 ES를 �
 sudo apt install -y logstash=1:7.11.1-1
 ```
 
-
 <br>
 
 ## Kibana
-
 
 ```
 sudo apt install -y kibana=7.11.1
 ```
 
+```
+sudo vi /etc/kibana/kibana.yml
+```
+설치 후 kibana.yml 파일을 수정
+<br><br>
+(사진)
+원격에서 접근 가능하도록 server.host를 0.0.0.0 으로 설정
+<br>
+
+(사진)
+Kibana가 ElasticSearch와 연결할 수 있도록 elasticsearch.hosts를 ~~~으로 설정
+
+<br>
+
 ## 💥 TroubleShooting
+
+### 1. Logstash 설치 시 버전명 오류
+
+```
+sudo apt install -y logstash=7.11.1
+```
+해당 명령어를 입력해서 Logstash를 설치하려 했을 때 오류가 발생했다.
+
+<br>
+
 ```
 sudo apt-cache madison logstash
 ```
-logstash 패키지의 사용 가능한 버전과 해당 버전의 저장소 정보 목록을 표시한다.
+해당 명령어는 Logstash 패키지의 사용 가능한 버전과 해당 버전의 저장소 정보를 표시한다.
 
 <br>
+(사진)
+<br>
+
+```
+sudo apt install -y logstash=1:7.11.1-1
+```
+표기된 대로 7.11.1이 아니라 1:7.11.1-1 버전을 설치하는 것으로 해결되었다.
+
+<br><br>
 
 # 🔍 Visualization
 > OO카드 실데이터를 이용한 시각화 및 분석
@@ -164,6 +207,7 @@ GET card_data/_search
 
 ![2-2](https://github.com/user-attachments/assets/793f11ff-b8ee-449e-8911-5241b57020e8)
 
+그래프 보기 불편한데 바꿔보기<br>
 보험/병원은 연령대가 높아질수록 늘어난다.<br>
 요식업은 전체 연령대에 고르게 분포해있는 편이다.<br>
 의류/신변잡화는 전체 연령대에 매우 고르게 분포해 있다.<br>
@@ -173,7 +217,7 @@ GET card_data/_search
 
 <br><br>
 
-### 3. 연령대별 회원등급 수
+### 3. 연령대별 회원등급별 수
 
 <details>
 <summary>QueryDSL 보기</summary>
@@ -206,16 +250,20 @@ GET card_data/_search
 
 ![3-2](https://github.com/user-attachments/assets/b6d6e6bf-f1a3-4e09-bb62-f648074b5986)
 
-21: VVIP<br>
-22: VIP<br>
-23: 플래티넘<br>
-24: 골드<br>
-25: 해당없음<br>
+<br>
+
+| 21 | 22 | 23 | 24 | 25 |
+|----|----|----|----|----|
+| VVIP | VIP | 플래티넘 | 골드 | 해당없음 |
+
+<br>
+가장 회원수가 많은 고객의 연령대는 40대이며, VIP 이상인 회원의 수가 가장 많은 연령대 또한 40대이다.<br>
+추후 더 높은 등급으로 올라갈 가능성이 다른 연령대보다 높으므로 소비 금액의 경계선에 있는 회원들에게 추가로 고급 혜택 서비스를 제공한다.
 
 <br><br>
 
 
-### 4. 라이프 스테이지별 평균 이용금액
+### 4. 생애 주기별 평균 이용금액
 
 <details>
 <summary>QueryDSL 보기</summary>
@@ -248,20 +296,98 @@ GET card_data/_search
 
 ![4-2](https://github.com/user-attachments/assets/b6976851-dff7-4304-b687-b4080d3920f8)
 
-UNI : 대학생<br>
-NEW_JOB : 사회초년생<br>
-NEW_WED : 신혼<br>
-CHILD_BABY : 자녀 영유아<br>
-CHILD_TEEN : 자녀 의무교육<br>
-CHILD_UNI : 자녀 대학생<br>
-GOLLIFE : 중년기타 (신혼부부 이후 or 자녀 없음)<br>
-SECLIFE : 2nd Life<br>
-RETIR : 은퇴<br>
+<br>
+
+| UNI | NEW_JOB | NEW_WED | CHILD_BABY | CHILD_TEEN | CHILD_UNI | GOLLIFE | SECLIFE | RETIR |
+|-----|---------|---------|------------|------------|-----------|---------|---------|-------|
+|대학생|사회초년생|신혼|자녀 영유아|자녀 의무교육|자녀 대학생|중년기타|2nd Life|은퇴|
+
+<br>
+자녀를 둔 고객의 평균 이용금액이 월등하게 높다.<br>
 
 
 <br><br>
 
-### 5. 라이프 스테이지별 평균 소비 분야
+### 5. 생애 주기별 평균 소비 분야
+
+<details>
+<summary>QueryDSL 보기</summary>
+
+```
+GET card_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "card_data": {
+      "terms": {
+        "field": "LIFE_STAGE",
+        "size": 20
+      },
+      "aggs": {
+        "INTERIOR_AM": {
+          "avg": {
+            "field": "INTERIOR_AM"
+          }
+        },
+        "INSUHOS_AM": {
+          "avg": {
+            "field": "INSUHOS_AM"
+          }
+        },
+        "OFFEDU_AM": {
+          "avg": {
+            "field": "OFFEDU_AM"
+          }
+        },
+        "TRVLEC_AM": {
+          "avg": {
+            "field": "TRVLEC_AM"
+          }
+        },
+        "FSBZ_AM": {
+          "avg": {
+            "field": "FSBZ_AM"
+          }
+        },
+        "SVCARC_AM": {
+          "avg": {
+            "field": "SVCARC_AM"
+          }
+        },
+        "DIST_AM": {
+          "avg": {
+            "field": "DIST_AM"
+          }
+        },
+        "PLSANIT_AM": {
+          "avg": {
+            "field": "PLSANIT_AM"
+          }
+        },
+        "CLOTHGDS_AM": {
+          "avg": {
+            "field": "CLOTHGDS_AM"
+          }
+        },
+        "AUTO_AM": {
+          "avg": {
+            "field": "AUTO_AM"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<br>
+
+<br><br>
+
+
+### 6. 생애 주기별/연령별 신용카드/체크카드 평균 이용 금액
 
 <details>
 <summary>QueryDSL 보기</summary>
@@ -273,16 +399,23 @@ RETIR : 은퇴<br>
 </details>
 
 <br>
+둘중에 하나 아니면 1번 지우고 둘다 추가
 
 
+
+<br><br>
 
 ## 회고
+Kibana는 클릭과 드래그로 x축과 y축을 쉽게 조절할 수 있고, 결과를 한눈에 보기 좋게 표현할 수 있다.
+query문을 날려 json형식으로 저장된 데이터를 출력하는 것과 비교하면 시각화라는 기능은 현대 사회에서는 필수적인 기능이라 생각한다.
+편의성이나 한 눈에 볼 수 있다는 점에서 정말 좋은 도구라 생각한다.
+자동화 파이프라인을 잘만 구축한다면 사람이 해야 할 일은 매우 줄어들 것이다.
 
+<br>
 
 ## 아쉬웠던 점
-날짜에 따른 카드 신규 가입자의 증감 추이를 살펴보고 증감 폭이 큰 날짜 전후로 어떤 이벤트 또는 사건이 있었는지 확인해보고 신규 가입자를 늘릴 방법을 찾아보려고 했다.
-하지만 고객의 카드 입회년월 데이터가 명세서에는 YYYYMM으로 나와있었던 반면 실제 데이터 형식은 ~~~ 로 되어 있었다.
-해당 데이터가 무엇을 나타내는지 알아보기 어려워 해당 분석 방법은 실행하지 못한 것이 아쉽다.
+날짜에 따른 카드 신규 가입자의 증감 추이를 살펴보고 증감 폭이 큰 날짜 전후로 어떤 이벤트 또는 사건이 있었는지 확인해보고 신규 가입자를 늘릴 방법을 찾아보려고 했다.<br>
+하지만 고객의 카드 입회년월 데이터가 명세서에는 YYYYMM으로 나와있었던 반면 실제 데이터 형식은 ~~~ 로 되어 있었다. 해당 데이터가 무엇을 나타내는지 알아보기 어려워 해당 분석 방법을 실행하지 못한 것이 아쉽다.
 
 <br><br>
 
@@ -318,13 +451,7 @@ RETIR : 은퇴<br>
   284  which elasticsearch
   285  which elasticsearch.service
   286  history
-  287  which java
-  288  clear
-  289  ls
-  290  ls /
-  291  ls /etc/
-  292  ls -l
-  293  ls -l
+ 
   294  ls /etc/elasticsearch/
   295  suod ls /etc/elasticsearch/
   296  sudo ls /etc/elasticsearch/
@@ -395,10 +522,7 @@ RETIR : 은퇴<br>
   361  history
   362  sudo apt-cache madison logstash
   363  sudo apt install -y logstash=1:7.11.1-1
-  364  ubuntu -version
-  365  os -version
-  366  -version
-  367  --version
+  
   368  lsb_release -a
   369  exit
   370  sudo systemctl status kibana
@@ -410,7 +534,7 @@ RETIR : 은퇴<br>
   376  sudo systemctl status kibana
   377  sudo systemctl start kibana
   378  sudo systemctl status kibana
-  379  history
+
 
 
 
