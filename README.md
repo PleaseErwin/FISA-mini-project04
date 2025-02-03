@@ -7,10 +7,11 @@
 <br>
 설치 전 윈도우에서 우분투 ELK에 직접 접속할 수 있도록 VirtualBox에서 포트포워딩 설정을 해 준다.<br><br>
 
-(사진)
+![port](https://github.com/user-attachments/assets/3a866ca7-d310-468b-934a-cff8c1f01d54)
+
 포트 9200 - ElasticSearch <br>
-(사진)
 포트 5601 - Kibana <br>
+<br>
 
 ```
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo tee /usr/share/keyrings/elasticsearch-keyring.asc
@@ -81,7 +82,9 @@ sudo apt-cache madison logstash
 해당 명령어는 Logstash 패키지의 사용 가능한 버전과 해당 버전의 저장소 정보를 표시한다.
 
 <br>
-(사진)
+
+![madison](https://github.com/user-attachments/assets/fd43d34c-985d-471d-88ae-0afabeb6981b)
+
 <br>
 
 ```
@@ -206,8 +209,9 @@ GET card_data/_search
 <br>
 
 ![2-2](https://github.com/user-attachments/assets/793f11ff-b8ee-449e-8911-5241b57020e8)
+![5-2](https://github.com/user-attachments/assets/7afd88c5-49f5-4012-b395-33cc8193db75)
 
-그래프 보기 불편한데 바꿔보기<br>
+<br>
 보험/병원은 연령대가 높아질수록 늘어난다.<br>
 요식업은 전체 연령대에 고르게 분포해있는 편이다.<br>
 의류/신변잡화는 전체 연령대에 매우 고르게 분포해 있다.<br>
@@ -298,9 +302,9 @@ GET card_data/_search
 
 <br>
 
-| UNI | NEW_JOB | NEW_WED | CHILD_BABY | CHILD_TEEN | CHILD_UNI | GOLLIFE | SECLIFE | RETIR |
-|-----|---------|---------|------------|------------|-----------|---------|---------|-------|
-|대학생|사회초년생|신혼|자녀 영유아|자녀 의무교육|자녀 대학생|중년기타|2nd Life|은퇴|
+| UNI | NEW_JOB | NEW_WED | CHILD_BABY | CHILD_TEEN | CHILD_UNI | GOLLIFE | SECLIFE | RETIR | TEEN |
+|-----|---------|---------|------------|------------|-----------|---------|---------|-------|------|
+|대학생|사회초년생|신혼|자녀 영유아|자녀 의무교육|자녀 대학생|중년기타|2nd Life|은퇴|청소년|
 
 <br>
 자녀를 둔 고객의 평균 이용금액이 월등하게 높다.<br>
@@ -382,28 +386,100 @@ GET card_data/_search
 
 </details>
 
+![6-2](https://github.com/user-attachments/assets/5ec173d1-3125-4336-ba83-7049269a2f34)
 <br>
 
 <br><br>
 
 
-### 6. 생애 주기별/연령별 신용카드/체크카드 평균 이용 금액
+### 6. 생애 주기별 신용카드/체크카드 평균 이용 금액
 
 <details>
 <summary>QueryDSL 보기</summary>
 
 ```
-
+GET card_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "card_data": {
+      "terms": {
+        "field": "LIFE_STAGE",
+        "size": 10
+      },
+      "aggs": {
+        "TOT_USE_AM": {
+          "avg": {
+            "field": "TOT_USE_AM"
+          }
+        },
+        "CRDSL_USE_AM": {
+          "avg": {
+            "field": "CRDSL_USE_AM"
+          }
+        },
+        "CNF_USE_AM": {
+          "avg": {
+            "field": "CNF_USE_AM"
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 </details>
 
+![7-2](https://github.com/user-attachments/assets/fb6a31d9-a718-4e6e-b979-07656d55c95d)
 <br>
-둘중에 하나 아니면 1번 지우고 둘다 추가
-
 
 
 <br><br>
+
+
+### 7. 연령별 신용카드/체크카드 평균 이용 금액
+
+<details>
+<summary>QueryDSL 보기</summary>
+
+```
+GET card_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "card_data": {
+      "terms": {
+        "field": "AGE",
+        "size": 10
+      },
+      "aggs": {
+        "TOT_USE_AM": {
+          "avg": {
+            "field": "TOT_USE_AM"
+          }
+        },
+        "CRDSL_USE_AM": {
+          "avg": {
+            "field": "CRDSL_USE_AM"
+          }
+        },
+        "CNF_USE_AM": {
+          "avg": {
+            "field": "CNF_USE_AM"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
+
+![8-2](https://github.com/user-attachments/assets/37a6694a-c283-488c-8ebc-141cd84cfc3f)
+<br>
+
 
 ## 회고
 Kibana는 클릭과 드래그로 x축과 y축을 쉽게 조절할 수 있고, 결과를 한눈에 보기 좋게 표현할 수 있다.
@@ -416,6 +492,7 @@ query문을 날려 json형식으로 저장된 데이터를 출력하는 것과 �
 ## 아쉬웠던 점
 날짜에 따른 카드 신규 가입자의 증감 추이를 살펴보고 증감 폭이 큰 날짜 전후로 어떤 이벤트 또는 사건이 있었는지 확인해보고 신규 가입자를 늘릴 방법을 찾아보려고 했다.<br>
 하지만 고객의 카드 입회년월 데이터가 명세서에는 YYYYMM으로 나와있었던 반면 실제 데이터 형식은 ~~~ 로 되어 있었다. 해당 데이터가 무엇을 나타내는지 알아보기 어려워 해당 분석 방법을 실행하지 못한 것이 아쉽다.
+> 내가 실수한듯...데이터 제대로 들어와있음
 
 <br><br>
 
